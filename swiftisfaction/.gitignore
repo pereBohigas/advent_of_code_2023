@@ -1,0 +1,11 @@
+# IGNORE ALL BINARY FILES WITHOUT EXTENSION
+
+## Ignore all
+*
+
+## Unignore all with extensions
+!*.*
+
+## Unignore all dirs
+!*/
+
