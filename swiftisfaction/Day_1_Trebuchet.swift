@@ -50,3 +50,70 @@ let calibrationValuesSum: Int = calibrationValues.reduce(0, +)
 
 print("Answer Part One - Sum of all calibration values:", calibrationValuesSum)
 
+// --- Part Two ---
+//
+// Your calculation isn't quite right. It looks like some of the digits are actually spelled out with letters: one, two, three, four, five, six, seven, eight, and nine also count as valid "digits".
+//
+// Equipped with this new information, you now need to find the real first and last digit on each line. For example:
+//
+// two1nine
+// eightwothree
+// abcone2threexyz
+// xtwone3four
+// 4nineeightseven2
+// zoneight234
+// 7pqrstsixteen
+//
+// In this example, the calibration values are 29, 83, 13, 24, 42, 14, and 76. Adding these together produces 281.
+//
+// What is the sum of all of the calibration values?
+
+let numberFormatter: NumberFormatter = {
+	let formatter = NumberFormatter()
+	formatter.locale = .init(identifier: "en-US")
+	formatter.numberStyle = .spellOut
+	return formatter
+}()
+
+let numberDigits: [Int] = Array(0...9)
+
+let numberStrings: [String] = numberDigits.map(NSNumber.init).compactMap(numberFormatter.string)
+
+let numberStringsToDigits: [String: Int] = Dictionary(uniqueKeysWithValues: zip(numberStrings, numberDigits))
+
+let captureRegex: String = (numberDigits.compactMap(String.init) + numberStrings).joined(separator: "|")
+
+let numberRegex: Regex = #/(1|2|3|4|5|6|7|8|9|zero|one|two|three|four|five|six|seven|eight|nine)/#
+
+let tests: [String] = [
+"two1nine",
+"eightwothree",
+"abcone2threexyz",
+"xtwone3four",
+"4nineeightseven2",
+"zoneight234",
+"7pqrstsixteen",
+]
+
+let calibrationValuesPartTwo: [Int] = calibrationDocument.compactMap { calibrationLine -> Int? in
+	let ranges = calibrationLine.ranges(of: numberRegex)
+
+	guard
+		let firstMatchRange = ranges.first,
+		let lastMatchRange = ranges.last
+	else { return nil }
+
+	let firstMatch: String = String(calibrationLine[firstMatchRange])
+	let lastMatch: String = String(calibrationLine[lastMatchRange])
+
+	let firstNumber: String = numberStrings.contains(firstMatch) ? String(numberStringsToDigits[firstMatch]!) : firstMatch
+
+	let secondNumber: String = numberStrings.contains(lastMatch) ? String(numberStringsToDigits[lastMatch]!) : lastMatch
+
+	return Int(firstNumber + secondNumber)
+}
+
+let calibrationValuesPartTwoSum = calibrationValuesPartTwo.reduce(0, +)
+
+print("Answer Part Two - Sum of all calibration values:", calibrationValuesPartTwoSum)
+
